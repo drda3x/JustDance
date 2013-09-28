@@ -20,26 +20,33 @@
 		this.fields = fields;
 		this.create = function() {
 			var queryStr = 'CREATE TABLE IF NOT EXISTS `' + this.tablename + '` (',
-				fieldsLen = fields.length;
+				fieldsLen = fields.length,
+                pk, fk=[], fkLen;
 			for (var i = 0; i < fieldsLen; i++) {
-				var f = toUpperCase(fields[i]),
-                    pk = null, fk = [];
+				var f = fields[i];
+                pk = null;
 
 				if (f.search('PRIMARY KEY') > 0) {
 					pk = f.slice(0, f.indexOf(' ', 0));
 					f = f.slice(0, f.indexOf('PRIMARY KEY', 0));
 				}
                 if (f.search('FOREIGN KEY') > 0) {
-                    var key = {
-                        name: f.slise(0, f.indexOf(' ', 0)),
-                        onDel: 'ON DELETE NO ACTION',
-                        onUpd: 'ON UPDATE NO ACTION',
-                        ref: (function(){
-                             var str = f.slice(f.indexOf('REFERENCES', 0));
-                            return str.slice(0, str.indexOf(' ', 0));
-                        })()
+                    console.log(name);
+                    var key = function(f) {
+                        this.name = f.slice(0, f.indexOf(' ', 0));
+                        this.onDel = 'ON DELETE NO ACTION';
+                        this.onUpd = 'ON UPDATE NO ACTION';
+                        this.ref = (function(){
+                            var i = f.indexOf('REFERENCES', 0);
+                             if (i > 0) {
+                                 var str = f.slice(i);
+                                 return str.slice(0, str.indexOf(' ', 11));
+                             }
+                             return null;
+                        })();
                     };
-                    fk.push(key);
+                    fk.push(new key(f));
+                    fkLen = fk.length;
                     f = f.slice(0, f.indexOf('FOREIGN KEY', 0));
                 }
 				queryStr += ' ' + f + ',';
@@ -47,9 +54,13 @@
 			if(pk) {
 				queryStr += ' PRIMARY KEY(' + pk + ')';
 			}
+            for(var i=0; i<fkLen; i++) {
+                queryStr += ' FOREIGN KEY ('+fk[i].name+') ';
+                (fk[i].ref) ? queryStr += fk[i].ref :  null;
+            }
             // todo Добавить вставку конструкции FOREIGN KEY
 			queryStr += ')';
-			return toUpperCase(queryStr);
+			return queryStr;
 		}
 		this.drop = function() {
 			return 'DROP ' + this.tablename;
@@ -90,12 +101,16 @@
 
     ];
 
+    for(var i=0; i<dbTables.length; i++) {
+        console.log(dbTables[i].create());
+    }
+
 	var club = new Table('club', [
 			'`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
 			'`NAME` VARCHAR(100)'
 		]);
 
-    try {
+/*    try {
         connection.connect();
         connection.query(club.create(), function(err, rows, fields) {
             if(err) {
@@ -106,5 +121,5 @@
         connection.end();
     } catch(e) {
         console.log(e);
-    }
+    }*/
 }())
