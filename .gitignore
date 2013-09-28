@@ -1,2 +1,3 @@
 $ cat .gitignore 
-/core/node_modules
+/node_modules
+/core/.idea

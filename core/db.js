@@ -10,7 +10,7 @@
 		connection = mysql.createConnection({
 			host: 'localhost',
 			user: 'root',
-			password: 'foriin0..1',
+			password: 'root',
 			database: 'ash'
 		});
 
@@ -19,22 +19,37 @@
 		this.tablename = name;
 		this.fields = fields;
 		this.create = function() {
-			var queryStr = 'CREATE TABLE `' + this.tablename + '` (',
+			var queryStr = 'CREATE TABLE IF NOT EXISTS `' + this.tablename + '` (',
 				fieldsLen = fields.length;
 			for (var i = 0; i < fieldsLen; i++) {
-				var f = fields[i];
+				var f = toUpperCase(fields[i]),
+                    pk = null, fk = [];
 
-				if (fields[i].search('PRIMARY KEY') > 0) {
-					var pk = f.slice(0, fields[i].indexOf(' ', 0));
+				if (f.search('PRIMARY KEY') > 0) {
+					pk = f.slice(0, f.indexOf(' ', 0));
 					f = f.slice(0, f.indexOf('PRIMARY KEY', 0));
 				}
+                if (f.search('FOREIGN KEY') > 0) {
+                    var key = {
+                        name: f.slise(0, f.indexOf(' ', 0)),
+                        onDel: 'ON DELETE NO ACTION',
+                        onUpd: 'ON UPDATE NO ACTION',
+                        ref: (function(){
+                             var str = f.slice(f.indexOf('REFERENCES', 0));
+                            return str.slice(0, str.indexOf(' ', 0));
+                        })()
+                    };
+                    fk.push(key);
+                    f = f.slice(0, f.indexOf('FOREIGN KEY', 0));
+                }
 				queryStr += ' ' + f + ',';
 			}
 			if(pk) {
 				queryStr += ' PRIMARY KEY(' + pk + ')';
 			}
+            // todo Добавить вставку конструкции FOREIGN KEY
 			queryStr += ')';
-			return queryStr;
+			return toUpperCase(queryStr);
 		}
 		this.drop = function() {
 			return 'DROP ' + this.tablename;
@@ -51,20 +66,45 @@
 		}
 	}
 
-	// ToDo: продумать вариант с массивом таблиц, чтобы проходить по каждому объекту, 
-	//       вызывать у него метод create и запускать создание таблицы в БД...
+	// ToDo продумать вариант с массивом таблиц, чтобы проходить по каждому объекту,
+	// ToDo вызывать у него метод create и запускать создание таблицы в БД...
+    // ToDo а вообще для создания таблиц в базе надо бы написать ф-цию...
+
+    var dbTables = [
+        // Таблица клубов
+        new Table('clubs', [
+            '`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
+            '`NAME` VARCHAR(100)'
+        ]),
+        // Таблица клубных баллов
+        new Table('club_points' ,[
+            '`CLUBID` INT(11) NOT NULL PRIMARY KEY',
+            '`TOURNAMENTID` INT(11) NOT NULL FOREIGN KEY REFERENCES clubs',
+            '`POINTS INT(11)`',
+            'INDEX `clubtournaments`(`TOURNAMENTID` ASC)'
+        ]),
+        // Таблица организаторов
+        new Table('organizer', [
+            '`ORGID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY'
+        ])
+
+    ];
 
 	var club = new Table('club', [
 			'`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
 			'`NAME` VARCHAR(100)'
 		]);
 
-	connection.connect();
-	connection.query(club.create(), function(err, rows, fields) {
-		if(err) {
-			throw err;
-		}
-		console.log('table a created');
-	});
-	connection.end();
+    try {
+        connection.connect();
+        connection.query(club.create(), function(err, rows, fields) {
+            if(err) {
+                throw err;
+            }
+            console.log('table a created');
+        });
+        connection.end();
+    } catch(e) {
+        console.log(e);
+    }
 }())
