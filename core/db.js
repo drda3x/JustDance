@@ -7,6 +7,7 @@
 	"use strict";
 	console.log('db module activated');
 	var mysql = require("mysql"),
+        fs = require("fs"),
 		connection = mysql.createConnection({
 			host: 'localhost',
 			user: 'root',
@@ -14,102 +15,53 @@
 			database: 'ash'
 		});
 
-	// Конструктор создания таблицы в базе данных
-	var Table = function(name, fields) {
-		this.tablename = name;
-		this.fields = fields;
-		this.create = function() {
-			var queryStr = 'CREATE TABLE IF NOT EXISTS `' + this.tablename + '` (',
-				fieldsLen = fields.length,
-                pk, fk=[], fkLen;
-			for (var i = 0; i < fieldsLen; i++) {
-				var f = fields[i];
-                pk = null;
+    // Функция для создания структуры базы данных
+    function dbStructureCreator() {
+        fs.open('../sql/dbStructure.sql', 'r', null, function(err, file_handle) {
 
-				if (f.search('PRIMARY KEY') > 0) {
-					pk = f.slice(0, f.indexOf(' ', 0));
-					f = f.slice(0, f.indexOf('PRIMARY KEY', 0));
-				}
-                if (f.search('FOREIGN KEY') > 0) {
-                    console.log(name);
-                    var key = function(f) {
-                        this.name = f.slice(0, f.indexOf(' ', 0));
-                        this.onDel = 'ON DELETE NO ACTION';
-                        this.onUpd = 'ON UPDATE NO ACTION';
-                        this.ref = (function(){
-                            var i = f.indexOf('REFERENCES', 0);
-                             if (i > 0) {
-                                 var str = f.slice(i);
-                                 return str.slice(0, str.indexOf(' ', 11));
-                             }
-                             return null;
-                        })();
-                    };
-                    fk.push(new key(f));
-                    fkLen = fk.length;
-                    f = f.slice(0, f.indexOf('FOREIGN KEY', 0));
+            if(err) {
+                console.log('Error of file opening');
+                console.log(err);
+            } else {
+
+                if(err) {
+                    console.log('Error of file reading');
+                    console.log(err);
+                } else {
+                    fs.read(file_handle, 100000000, null, 'utf8', function(err, data){
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            var sql = data, query;
+                            connection.connect();
+                            while(1) { // todo УБРАТЬ БЕСКОНЕЧНЫЙ ЦИКЛ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                var curIndex = sql.indexOf(');', 0);
+                                if(curIndex<0) {
+                                    break;
+                                }
+                                curIndex += 2;
+                                query = sql.slice(0, curIndex);
+                                connection.query(query, function(err, rows, fields) {
+                                    if(err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log(rows);
+                                    }
+                                });
+                                sql = sql.slice(curIndex, sql.length);
+                            }
+                            connection.end();
+                        }
+                })
                 }
-				queryStr += ' ' + f + ',';
-			}
-			if(pk) {
-				queryStr += ' PRIMARY KEY(' + pk + ')';
-			}
-            for(var i=0; i<fkLen; i++) {
-                queryStr += ' FOREIGN KEY ('+fk[i].name+') ';
-                (fk[i].ref) ? queryStr += fk[i].ref :  null;
+
             }
-            // todo Добавить вставку конструкции FOREIGN KEY
-			queryStr += ')';
-			return queryStr;
-		}
-		this.drop = function() {
-			return 'DROP ' + this.tablename;
-		}
-		// Подумать...
-		this.update = function(fields, values) {
-			var f = fields, v = values,
-				fLen = f.length,
-				q = 'UPDATE TABLE ' + this.tablename;
 
-			for(var i=0; i<fLen; i++) {
+        });
 
-			}
-		}
-	}
-
-	// ToDo продумать вариант с массивом таблиц, чтобы проходить по каждому объекту,
-	// ToDo вызывать у него метод create и запускать создание таблицы в БД...
-    // ToDo а вообще для создания таблиц в базе надо бы написать ф-цию...
-
-    var dbTables = [
-        // Таблица клубов
-        new Table('clubs', [
-            '`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
-            '`NAME` VARCHAR(100)'
-        ]),
-        // Таблица клубных баллов
-        new Table('club_points' ,[
-            '`CLUBID` INT(11) NOT NULL PRIMARY KEY',
-            '`TOURNAMENTID` INT(11) NOT NULL FOREIGN KEY REFERENCES clubs',
-            '`POINTS INT(11)`',
-            'INDEX `clubtournaments`(`TOURNAMENTID` ASC)'
-        ]),
-        // Таблица организаторов
-        new Table('organizer', [
-            '`ORGID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY'
-        ])
-
-    ];
-
-    for(var i=0; i<dbTables.length; i++) {
-        console.log(dbTables[i].create());
     }
 
-	var club = new Table('club', [
-			'`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
-			'`NAME` VARCHAR(100)'
-		]);
-
+    dbStructureCreator();
 /*    try {
         connection.connect();
         connection.query(club.create(), function(err, rows, fields) {
