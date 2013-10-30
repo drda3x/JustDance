@@ -1,12 +1,12 @@
-CREATE DATABASE `ash` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE `@db_name@` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
-CREATE TABLE `ash`.`classes` (
+CREATE TABLE `@db_name@`.`classes` (
   `class_id` int(11) NOT NULL AUTO_INCREMENT,
   `class_name` varchar(1) NOT NULL,
   PRIMARY KEY (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `ash`.`dancers` (
+CREATE TABLE `@db_name@`.`dancers` (
   `dancer_id` int(11) NOT NULL,
   `person_id` int(11) NOT NULL,
   `club_id` int(11) DEFAULT NULL,
@@ -18,13 +18,13 @@ CREATE TABLE `ash`.`dancers` (
   CONSTRAINT `club` FOREIGN KEY (`club_id`) REFERENCES `reg_system`.`clubs` (`club_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `ash`.`judge_categories` (
+CREATE TABLE `@db_name@`.`judge_categories` (
   `category_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(15) NOT NULL,
   PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `ash`.`judges` (
+CREATE TABLE `@db_name@`.`judges` (
   `personid` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
   `club_id` int(11) DEFAULT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `ash`.`judges` (
   CONSTRAINT `category` FOREIGN KEY (`category_id`) REFERENCES `judge_categories` (`category_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `ash`.`ratings` (
+CREATE TABLE `@db_name@`.`ratings` (
   `dancer_id` int(11) NOT NULL,
   `class_id` int(11) NOT NULL,
   `score` int(11) NOT NULL,

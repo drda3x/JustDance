@@ -5,73 +5,90 @@
 
 (function(){
 	"use strict";
-	console.log('db module activated');
-	var mysql = require("mysql"),
-        fs = require("fs"),
-		connection = mysql.createConnection({
-			host: 'localhost',
-			user: 'root',
-			password: 'root',
-			database: 'ash'
-		});
+    var MySql = require("mysql"),
+        connection = MySql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'root'
+        });
 
-    // Функция для создания структуры базы данных
-    function dbStructureCreator() {
-        fs.open('../sql/dbStructure.sql', 'r', null, function(err, file_handle) {
+    /**
+     * @usage Конструктор объекта базы данных
+     * @param name - наименование базы данных
+     * @param sqlPath - путь к sql-файлу
+     * @constructor
+     */
+    var DataBase = function(name, sqlPath) {
+        this.name = name;
+        this.sqlPath = sqlPath;
+        this.connection = new MySql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'root'
+        });
+    };
+    // Модуль работы с файловой системой
+    DataBase.prototype.fs = require("fs");
 
+    // Метод для вызова процедуры создания базы данных
+    DataBase.prototype.createDataBase = function() {
+        var self = this;
+        self.fs.open(self.sqlPath, 'r', null, function(err, file_handle){
             if(err) {
                 console.log('Error of file opening');
                 console.log(err);
             } else {
-
-                if(err) {
-                    console.log('Error of file reading');
-                    console.log(err);
-                } else {
-                    fs.read(file_handle, 100000000, null, 'utf8', function(err, data){
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            var sql = data, query;
-                            connection.connect();
-                            while(1) { // todo УБРАТЬ БЕСКОНЕЧНЫЙ ЦИКЛ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                var curIndex = sql.indexOf(');', 0);
-                                if(curIndex<0) {
-                                    break;
-                                }
-                                curIndex += 2;
-                                query = sql.slice(0, curIndex);
-                                connection.query(query, function(err, rows, fields) {
-                                    if(err) {
-                                        console.log(err);
-                                    } else {
-                                        console.log(rows);
-                                    }
-                                });
-                                sql = sql.slice(curIndex, sql.length);
+                self.fs.read(file_handle, 100000000, null, 'utf8', function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        var sql = data, query;
+                        while (1) {  // todo Всетаки убрать бесконечный цикл!!!!!
+                            var curIndex = sql.indexOf(';', 0);
+                            if (curIndex < 0) {
+                                break;
                             }
-                            connection.end();
+                            curIndex ++;
+                            query = sql.slice(0, curIndex);
+                            query = query.replace("@db_name@", self.name);
+                            try {
+                                self.connection.connect();
+                            } catch(e) {
+                                null;
+                            }
+                            self.connection.query(query, function (err, rows, fields) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                            });
+                            sql = sql.slice(curIndex, sql.length);
                         }
-                })
-                }
+                        self.connection.end();
+                    }
+                });
 
             }
-
         });
-
+        console.log('End of function work');
     }
 
-    dbStructureCreator();
-/*    try {
-        connection.connect();
-        connection.query(club.create(), function(err, rows, fields) {
+    DataBase.prototype.removeDataBase = function() {
+        var self = this;
+        connection.query('DROP DATABASE `' + self.name + '`', function(err) {
             if(err) {
-                throw err;
+                console.log(err);
+            } else {
+                console.log('data base has been successfully removed')
             }
-            console.log('table a created');
-        });
-        connection.end();
-    } catch(e) {
-        console.log(e);
-    }*/
+        })
+    }
+
+    var regSystem = new DataBase('reg_system', '../sql/regSystem.sql'),
+        tournament = new DataBase('tournament', '../sql/tournamentDefault.sql'),
+        ash = new DataBase('ash', '../sql/ash.sql');
+    //regSystem.removeDataBase();
+    regSystem.createDataBase();
+    tournament.createDataBase();
+    ash.createDataBase();
+    console.log('Everything is OK!');
 }())

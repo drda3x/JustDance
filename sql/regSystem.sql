@@ -1,6 +1,6 @@
-CREATE DATABASE `reg_system` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE `@db_name@` DEFAULT CHARACTER SET utf8;
 
-CREATE TABLE `reg_system`.`association_links` (
+CREATE TABLE `@db_name@`.`association_links` (
   `association_id` int(11) NOT NULL,
   `name` varchar(45) NOT NULL,
   `db_name` varchar(45) DEFAULT NULL,
@@ -11,13 +11,13 @@ CREATE TABLE `reg_system`.`association_links` (
   PRIMARY KEY (`association_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `reg_system`.`clubs` (
+CREATE TABLE `@db_name@`.`clubs` (
   `club_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`club_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `reg_system`.`people` (
+CREATE TABLE `@db_name@`.`people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `lastname` varchar(50) DEFAULT NULL,
   `firstname` varchar(50) DEFAULT NULL,
@@ -26,21 +26,21 @@ CREATE TABLE `reg_system`.`people` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `reg_system`.`places` (
+CREATE TABLE `@db_name@`.`places` (
   `place_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `coords` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`place_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `reg_system`.`tournament_links` (
+CREATE TABLE `@db_name@`.`tournament_links` (
   `tournametID` int(11) NOT NULL,
   `db_adress` varchar(100) NOT NULL,
   `db_login` varchar(45) NOT NULL,
   `db_password` varchar(45) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `reg_system`.`users` (
+CREATE TABLE `@db_name@`.`users` (
   `userid` int(11) NOT NULL AUTO_INCREMENT,
   `login` varchar(10) NOT NULL,
   `password` varchar(50) NOT NULL,
