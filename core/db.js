@@ -1,110 +1,155 @@
 /**
- * 	@authot da3x11@gmail.com (Vasily Nesterov)
+ * 	@author da3x11@gmail.com (Vasily Nesterov)
  *	@usage Пакет функций для создания базы данных
  */
 
 (function(){
 	"use strict";
-	console.log('db module activated');
-	var mysql = require("mysql"),
-		connection = mysql.createConnection({
-			host: 'localhost',
-			user: 'root',
-			password: 'root',
-			database: 'ash'
-		});
-
-	// Конструктор создания таблицы в базе данных
-	var Table = function(name, fields) {
-		this.tablename = name;
-		this.fields = fields;
-		this.create = function() {
-			var queryStr = 'CREATE TABLE IF NOT EXISTS `' + this.tablename + '` (',
-				fieldsLen = fields.length;
-			for (var i = 0; i < fieldsLen; i++) {
-				var f = toUpperCase(fields[i]),
-                    pk = null, fk = [];
-
-				if (f.search('PRIMARY KEY') > 0) {
-					pk = f.slice(0, f.indexOf(' ', 0));
-					f = f.slice(0, f.indexOf('PRIMARY KEY', 0));
-				}
-                if (f.search('FOREIGN KEY') > 0) {
-                    var key = {
-                        name: f.slise(0, f.indexOf(' ', 0)),
-                        onDel: 'ON DELETE NO ACTION',
-                        onUpd: 'ON UPDATE NO ACTION',
-                        ref: (function(){
-                             var str = f.slice(f.indexOf('REFERENCES', 0));
-                            return str.slice(0, str.indexOf(' ', 0));
-                        })()
-                    };
-                    fk.push(key);
-                    f = f.slice(0, f.indexOf('FOREIGN KEY', 0));
-                }
-				queryStr += ' ' + f + ',';
-			}
-			if(pk) {
-				queryStr += ' PRIMARY KEY(' + pk + ')';
-			}
-            // todo Добавить вставку конструкции FOREIGN KEY
-			queryStr += ')';
-			return toUpperCase(queryStr);
-		}
-		this.drop = function() {
-			return 'DROP ' + this.tablename;
-		}
-		// Подумать...
-		this.update = function(fields, values) {
-			var f = fields, v = values,
-				fLen = f.length,
-				q = 'UPDATE TABLE ' + this.tablename;
-
-			for(var i=0; i<fLen; i++) {
-
-			}
-		}
-	}
-
-	// ToDo продумать вариант с массивом таблиц, чтобы проходить по каждому объекту,
-	// ToDo вызывать у него метод create и запускать создание таблицы в БД...
-    // ToDo а вообще для создания таблиц в базе надо бы написать ф-цию...
-
-    var dbTables = [
-        // Таблица клубов
-        new Table('clubs', [
-            '`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
-            '`NAME` VARCHAR(100)'
-        ]),
-        // Таблица клубных баллов
-        new Table('club_points' ,[
-            '`CLUBID` INT(11) NOT NULL PRIMARY KEY',
-            '`TOURNAMENTID` INT(11) NOT NULL FOREIGN KEY REFERENCES clubs',
-            '`POINTS INT(11)`',
-            'INDEX `clubtournaments`(`TOURNAMENTID` ASC)'
-        ]),
-        // Таблица организаторов
-        new Table('organizer', [
-            '`ORGID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY'
-        ])
-
-    ];
-
-	var club = new Table('club', [
-			'`CLUBID` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
-			'`NAME` VARCHAR(100)'
-		]);
-
-    try {
-        connection.connect();
-        connection.query(club.create(), function(err, rows, fields) {
-            if(err) {
-                throw err;
-            }
-            console.log('table a created');
+    var MySql = require("mysql"),
+        connection = MySql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'root'
         });
-        connection.end();
-    } catch(e) {
-        console.log(e);
+
+    /**
+     * @usage Конструктор объекта базы данных
+     * @param name - наименование базы данных
+     * @param sqlPath - путь к sql-файлу
+     * @constructor
+     */
+    var DataBase = function(name, sqlPath) {
+        this.name = name;
+        this.sqlPath = sqlPath;
+        this.connection = new MySql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'root'
+        });
+    };
+    // Модуль работы с файловой системой
+    DataBase.prototype.fs = require("fs");
+
+    // Метод для вызова процедуры создания базы данных
+    DataBase.prototype.createDataBase = function() {
+        var self = this;
+        self.fs.open(self.sqlPath, 'r', null, function(err, file_handle){
+            if(err) {
+                console.log('Error of file opening');
+                console.log(err);
+            } else {
+                self.fs.read(file_handle, 100000000, null, 'utf8', function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        var sql = data, query;
+                        while (1) {  // todo Всетаки убрать бесконечный цикл!!!!!
+                            var curIndex = sql.indexOf(';', 0);
+                            if (curIndex < 0) {
+                                break;
+                            }
+                            curIndex ++;
+                            query = sql.slice(0, curIndex);
+                            query = query.replace("@db_name@", self.name);
+                            try {
+                                self.connection.connect();
+                            } catch(e) {
+                                null;
+                            }
+                            self.connection.query(query, function (err, rows, fields) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                            });
+                            sql = sql.slice(curIndex, sql.length);
+                        }
+                        self.connection.end();
+                    }
+                });
+
+            }
+        });
+        console.log('End of function work');
     }
+
+    DataBase.prototype.removeDataBase = function() {
+        var self = this;
+        connection.query('DROP DATABASE `' + self.name + '`', function(err) {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log('data base has been successfully removed')
+            }
+        })
+    }
+
+ /*   var regSystem = new DataBase('reg_system', '../sql/regSystem.sql'),
+        tournament = new DataBase('tournament', '../sql/tournamentDefault.sql'),
+        ash = new DataBase('ash', '../sql/ash.sql');
+    regSystem.createDataBase();
+    tournament.createDataBase();
+    ash.createDataBase();
+    console.log('Everything is OK!');
+  */
+    console.log('Start import');
+
+    /**
+     * Экземпляр класса DataBase для импорта клубной принадлежности
+     * делаю упрощенный вариант, так как в дальнейшем использование этого
+     * кода не планируется...
+     *
+     * А хотя, скорее всего планируется и это надо будет переписать так, чтобы это можно было использовать при
+     * обновлении таблиц ассоциаций...
+     */
+    var Clubs = new DataBase('clubs_imp','../sql/json-test.json');
+    Clubs.importClubs = function() {
+        var self = this;
+        // Открываем файлик с json-строкой
+        self.fs.open(self.sqlPath, 'r', null, function(err, file_handle, json){
+            if(err) {
+                console.log(err);
+            } else {
+                self.fs.read(file_handle, 100000000, null, 'utf8', function (err, data) {
+                    if(err){
+                        console.log(err);
+                    } else {
+                        json = JSON.parse(data).data;
+                        var query = 'SELECT * FROM reg_system.clubs ORDER BY name'
+                        self.connection.query(query, function(err, rows, fields){
+                            if(err) {
+                                console.log(err);
+                            } else {
+                                var jLen = json.length, curDancer, clubs, clubsLen, query,
+                                    rowsLen = rows.length, k;
+                                for(var i=0; i<jLen; i++) {                                curDancer = json[i];
+                                    clubs = curDancer.clubs;
+                                    clubsLen = clubs.length;
+                                    for(var j=0; j<clubsLen; j++) {
+                                        k = 0;
+                                        var cid = null;
+                                        while(k < rowsLen ) {
+                                            if (rows[k].name == clubs[j]) {
+                                                cid = rows[k].club_id;
+                                            }
+                                            k++;
+                                        }
+                                        query = 'INSERT INTO ash.club_affiliation(dancer_id, club_id) VALUES('+curDancer.num+','+cid+');';
+                                        self.connection.query(query, function(err, rows, fields){
+                                            if(err){
+                                                console.log(err);
+                                                console.log(query);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            self.connection.end();
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+    //Clubs.importClubs();
 }())
