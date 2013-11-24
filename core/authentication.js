@@ -1,18 +1,6 @@
 /**
  * Функционал для проверки доступа в систему...
- * todo: посмотреть возможность генерации событий...
  */
-
- /**
-  * Т.З. (После исполнения удалить!)
-  * Данный пакет отвечает за предоставление доступа к системе JustDance
-  * Тут необходимо реализовать следующее:
-  *     1. Зашифровать пароль.
-  *     2. Сделать запрос к базе для подтверждения пароля.
-  *     3. Сравнить два полученных хеша.
-  *     4. Выдать ответ об авторизации пользователя.
-  *     5*. Подумать над пользователями самой БД. Не работать же все время из под root'а.
-  */
 
 (function(){
     'use strict';
@@ -25,15 +13,11 @@
             password: 'whoareyou'
         });
 
-    var Users = function() {
-        this.isLoggedIn = null;
-    }
-
     /**
      * Функция для проверки данных пользователя(логи, пароль)
      * и возвтрата ответа на разрешение авторизации
      * */
-    Users.prototype.checkUser = function(login, password){
+    function checkUser(login, password){
         var hesh = getPassHesh(password),
             query = 'SELECT password FROM core.users WHERE login = \''+ login+'\'',
             self = this;
@@ -57,7 +41,7 @@
      * @param login
      * @param password
      */
-    Users.prototype.createUser = function(login, password) {
+    function createUser(login, password) {
         var hesh = getPassHesh(password),
             query = 'INSERT INTO core.users(login, password) VALUES(\''+login+'\', \''+hesh+'\')',
             self = this;
@@ -84,7 +68,5 @@
 
     //createUser('user2', 'qwerty');
     //checkUser('user2', 'qwerty');
-    var user = new Users();
-    user.checkUser('user2','qwerty');
 
 })()
