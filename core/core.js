@@ -4,3 +4,5 @@ var server = require('./server');
 server.start();
 var db = require('./db');
 var login = require('./authentication');
+var event = require('events');
+console.log(event);
