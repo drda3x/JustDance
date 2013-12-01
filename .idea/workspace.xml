@@ -2,17 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="600ea601-a16a-4050-b79b-49536ffd9e85" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/core.js" afterPath="$PROJECT_DIR$/core/core.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/server.js" afterPath="$PROJECT_DIR$/core/server.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/client.css" afterPath="$PROJECT_DIR$/client/client.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/websocet.html" afterPath="$PROJECT_DIR$/client/websocet.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="JustDance.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385922351572" ignored="false" />
+    <file path="/Dummy.txt" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385931117563" ignored="false" />
     <file path="/server.js" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385840569571" ignored="false" />
-    <file path="/websocet.html" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385922896399" ignored="false" />
+    <file path="/websocet.html" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385931619236" ignored="false" />
     <file path="/c_authentification.js" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385837920029" ignored="false" />
     <file path="/auth.js" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385839350898" ignored="false" />
-    <file path="/client.css" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385922839337" ignored="false" />
+    <file path="/client.css" changelist="600ea601-a16a-4050-b79b-49536ffd9e85" time="1385932487424" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,19 +42,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="websocet.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="websocet.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/websocet.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="9" selection-start="550" selection-end="550" vertical-scroll-proportion="0.5614679">
+            <state line="18" column="39" selection-start="553" selection-end="572" vertical-scroll-proportion="-11.769231">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="client.css" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="client.css" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/client.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="0" selection-start="11" selection-end="11" vertical-scroll-proportion="0.0">
+            <state line="23" column="102" selection-start="375" selection-end="375" vertical-scroll-proportion="0.68717045">
               <folding />
             </state>
           </provider>
@@ -101,8 +102,8 @@
         <option value="$PROJECT_DIR$/jquery-2.0.3.min.js" />
         <option value="$PROJECT_DIR$/client/auth.js" />
         <option value="$PROJECT_DIR$/core/server.js" />
-        <option value="$PROJECT_DIR$/client/client.css" />
         <option value="$PROJECT_DIR$/client/websocet.html" />
+        <option value="$PROJECT_DIR$/client/client.css" />
       </list>
     </option>
   </component>
@@ -138,6 +139,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -186,14 +188,13 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="recentsLimit" value="5" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/client" />
     <property name="restartRequiresConfirmation" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/client" />
     <property name="FullScreen" value="false" />
   </component>
   <component name="RecentsManager">
@@ -218,10 +219,6 @@
       <setting name="preferredDebugBrowser" value="CHROME" />
       <method />
     </configuration>
-    <configuration default="true" type="NodeJSRemoteDebug" factoryName="Node.js Remote Debug">
-      <node-js-remote-debug />
-      <method />
-    </configuration>
     <configuration default="true" type="NodeunitConfigurationType" factoryName="Nodeunit">
       <setting name="nodePath" value="C:/Program Files/nodejs/node" />
       <envs />
@@ -230,6 +227,10 @@
       <setting name="workingDirectory" value="$PROJECT_DIR$" />
       <setting name="testType" value="JS_FILE" />
       <setting name="jsFile" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeJSRemoteDebug" factoryName="Node.js Remote Debug">
+      <node-js-remote-debug />
       <method />
     </configuration>
     <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="C:/Program Files/nodejs/node" working-dir="$PROJECT_DIR$/core">
@@ -478,16 +479,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/client.css">
+    <entry file="file://$PROJECT_DIR$/client/websocet.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="0" selection-start="11" selection-end="11" vertical-scroll-proportion="0.0">
+        <state line="18" column="39" selection-start="553" selection-end="572" vertical-scroll-proportion="-11.769231">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/websocet.html">
+    <entry file="file://$PROJECT_DIR$/client/client.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="9" selection-start="550" selection-end="550" vertical-scroll-proportion="0.5614679">
+        <state line="23" column="102" selection-start="375" selection-end="375" vertical-scroll-proportion="0.68717045">
           <folding />
         </state>
       </provider>
