@@ -25,6 +25,7 @@
 
     function getDataFromPage() {
         var data = {
+            mesType: 'userAccess',
             login: $('.login').val(),
             pass: $('.pass').val()
             }
