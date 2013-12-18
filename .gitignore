@@ -1,4 +1,4 @@
 $ cat .gitignore 
 /node_modules
 /core/.idea
-jquery-2.0.3.min.js
+/Database dumps

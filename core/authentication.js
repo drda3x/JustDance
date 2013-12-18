@@ -2,62 +2,74 @@
  * Функционал для проверки доступа в систему...
  */
 
- /**
-  * Т.З. (После исполнения удалить!)
-  * Данный пакет отвечает за предоставление доступа к системе JustDance
-  * Тут необходимо реализовать следующее:
-  *     1. Зашифровать пароль.
-  *     2. Сделать запрос к базе для подтверждения пароля.
-  *     3. Сравнить два полученных хеша.
-  *     4. Выдать ответ об авторизации пользователя.
-  */
-
-(function(global){
+(function(){
     'use strict';
 
     var md5 = require('md5'),
         MySql = require('mysql'),
-        connection = MySql.createConnection({
+        db = new MySql.createConnection({
             host: 'localhost',
+            //user: 'checkuser',
+            //password: 'whoareyou'
             user: 'root',
             password: 'root'
         });
 
-    var User = function(login, password) {
-        this.login = login;
-        this.passHesh = getPasswordHesh(password);
-    }
-
-    // Функция для получения пользовательских прав доступа
-    User.prototype.checkAccess = function() {
-        var query = 'SELECT password FROM core.users WHERE login = "'+this.login+'"',
+    /**
+     * Функция для проверки данных пользователя(логи, пароль)
+     * и возвтрата ответа на разрешение авторизации
+     * */
+    function checkUser(login, password){
+        var hesh = getPassHesh(password),
+            query = 'SELECT password FROM core.users WHERE login = \''+ login+'\'',
             self = this;
-        connection.connect();
-        connection.query(query, function(err, rows, fields) {
-            console.log(rows);
-        });
-    }
-
-
-    User.prototype.addMe = function(login, password) {
-        var query = 'INSERT INTO core.users(login, password) VALUES("'+login+'","'+getPasswordHesh(password)+'")';
-        connection.connect();
-        connection.query(query, function(err){
-            if(err) {
+        db.connect();
+        db.query(query, function(err, rows){
+            if(err){
+                console.log('AUTHORISATION ERROR!!!');
                 console.log(err);
             } else {
-                console.log('user added');
+                if (hesh === rows[0].password) {
+                    self.isLoggedIn = true;
+                } else {
+                    self.isLoggedIn = false;
+                }
             }
-            connection.end();
+            db.end();
         });
     }
 
     /**
-     * @usage Функуия для получения хеша пароля...
+     * @usage Функция для создания пользователя системы JustDance
+     * @param login
+     * @param password
      */
-    function getPasswordHesh(str) {
-        return md5(md5(str) + 'afg1');
+    function createUser(login, password) {
+        var hesh = getPassHesh(password),
+            query = 'INSERT INTO core.users(login, password) VALUES(\''+login+'\', \''+hesh+'\')',
+            self = this;
+            console.log(query);
+        db.connect();
+        db.query(query, function(err, rows, fields){
+            if(err){
+                console.log(err);
+            } else {
+                console.log('User Added');
+            }
+            db.end();
+        });
     }
 
-    global.User = User;
-})(exports)
+    /**
+     * @usage Функция для получение шифрованного пароля
+     * @param password
+     * @return {--null-string--}
+     */
+    function getPassHesh(password){
+        return md5(md5(password) + 'af01');
+    }
+
+    //createUser('user2', 'qwerty');
+    checkUser('user2', 'qwerty');
+
+})()
